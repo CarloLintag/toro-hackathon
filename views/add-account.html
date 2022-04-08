@@ -1,0 +1,102 @@
+<!doctype html>
+   <html lang="en">
+   <head>
+       <meta charset="utf-8">
+       <meta name="viewport" content="width=device-width, initial-scale=1">
+       <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css">
+       <link rel="stylesheet" type="text/css" href="/workspace/toro-hackathon/css/employees.css">
+       <title>Log in</title>
+      
+   </head>
+   <body>
+    <div class="d-flex align-items-center justify-content-center">
+        <div class="container-lg">
+            <h1>Create New Account</h1>
+          <form method="POST" id="account-form">
+            <div class="row">
+                <div class="col">
+                    <label for="lastName" class="form-label">Last Name</label>
+                    <input type="text" class="form-control" id="lastName" required>
+                </div>
+                <div class="col">
+                  <label for="firstName" class="form-label">First Name</label>
+                  <input type="text" class="form-control" id="firstName" required>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <label for="emailAddress" class="form-label">Email Address</label>
+                    <input type="emai" class="form-control" id="emailAddress" required>
+                  </div>
+                <div class="col">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" required>
+                  </div>
+                <div class="col">
+                    <label for="clearanceLevel" class="form-label">Account Type</label>
+                    <select type="number" class="form-control" id="clearanceLevel" select required>
+                      <option value="1">Superuser</option>
+                      <option value="2">L1 Admin</option>
+                      <option value="3">L2 Admin</option>
+                      <option value="4">L3 Admin</option>
+                    </select>
+                </div>
+               
+               
+            </div>
+
+            <div class="row text-right " style="margin-top: 1vw;">
+                <div class="col-8">
+                    
+                </div>
+                <div class="col text-right">
+                    <button id="submit" type="submit" class="btn btn-primary">Success</button>
+                </div>
+                <div class="col text-right">
+                    <button id="back" type="button" class="btn btn-secondary">Back</button>
+                </div>
+            </div>
+        </form>
+           
+        </div>
+       
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        const api = axios.create({
+        baseURL: 'https://6000-carlolintag-torohackatho-35cvx7tow3f.ws-us38.gitpod.io/management',
+        timeout: 10000,
+        auth: {
+            username: localStorage.getItem("username"),
+            password:localStorage.getItem("password")
+        }
+      });
+      document.getElementById('account-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        // TODO REST-API POST
+        let data = {
+          lastName: document.getElementById('lastName').value,
+          firstName: document.getElementById('firstName').value,
+          clearanceLevel: document.getElementById('clearanceLevel').value,
+         
+        }
+
+        api.post('/account', data)
+          .then(response => {
+            alert(response.data.message)
+          })
+          .catch(error => {
+            alert('Failed to create account')
+          })
+      })
+
+      document.getElementById("back").addEventListener("click", function(){
+            location.href('/accounts')
+        });
+    </script>
+
+    </body>
+   
+   </html>

@@ -1,0 +1,65 @@
+<!doctype html>
+   <html lang="en">
+   <head>
+       <meta charset="utf-8">
+       <meta name="viewport" content="width=device-width, initial-scale=1">
+       <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css">
+       <link rel="stylesheet" type="text/css" href="/workspace/toro-hackathon/css/login.css">
+       <title>Log in</title>
+      
+   </head>
+   <body>
+    <div class="d-flex align-items-center justify-content-center login">
+        <form method="POST"  id="login-form" class="w-50" >
+            <h1>
+                Login
+            </h1>
+            <!--Email Field-->
+            <div class="mb-3">        
+                <label for="Email" class="form-label">Enter Email Address</label>
+                <input type="email" class="form-control" id="email" placeholder="Email" required>
+            </div>
+            <!--Password Field-->
+            <div class="mb-3">
+                <label for="Password" class="form-label">Enter Password</label>
+                <input type="password" class="form-control" id="password" placeholder="Password" required>
+            </div>
+
+            <div class="d-grid  col-6 mx-auto">
+            <button type="submit" class="btn btn-custom btn-lg btn-block mt-3">Log in </button>
+            </div>
+           
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        const api = axios.create({
+        baseURL: 'https://6000-carlolintag-torohackatho-35cvx7tow3f.ws-us38.gitpod.io/management',
+        timeout: 10000,
+      });
+      document.getElementById('login-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        let auth =  {
+            username: document.getElementById('email').value,
+            password: document.getElementById('password').value
+        }
+
+        api.post('/auth', auth, {auth: auth})
+          .then(response => {
+            localStorage.setItem("username", document.getElementById('email').value);
+            localStorage.setItem("password", document.getElementById('password').value);
+            location.href = '/employees'
+          })
+          .catch(error => {
+            console.log(error)
+            alert('Invalid credentials')
+          })
+      })
+      
+    </script>
+
+     
+    </body>
+   
+   </html>

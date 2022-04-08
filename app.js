@@ -1,245 +1,111 @@
 const express = require('express')
+const cors = require('cors');
 let mustacheExpress = require('mustache-express')
 
 const app = express()
-const port = 4000
 
 app.use(express.json())
+app.use(cors({
+  credentials: false,
+}));
 
 app.set('views', './views') 
 app.set('view engine', 'mustache')  
 
+
+
 app.engine('html', mustacheExpress());
 
-const { Employee, Admin, AdminAccount, AdminClearance, Attendance, SickLeave, VacationLeave } = require('./db')
+const account = require('./routes/account.route')
+const employee = require('./routes/employee.route')
+const auth = require('./routes/auth.route')
 
-// ---------------------------- HTML ROUTES ---------------------------------------
-app.get('/employees', (req, res) => {
-    res.render('view-employees.html')
-  })
-  
-  app.get('/employees/:id', (req, res) => {
-    res.render('view-employee.html', {id: req.params.id})
-  })
-  
-  app.get('/employees/edit/:id', (req, res) => {
-    res.render('edit-employee.html', {id: req.params.id})
-  })
-  
-  // ---------------------------- API ROUTES ---------------------------------------
-  
-  // EMPLOYEE START
-  app.get('/api/employee', (req, res) => {
-    // TODO - view all employees
-    Employee.findAll({ include: [SickLeave, VacationLeave] })
-      .then(result => {
-        res.json({
-          result: result,
-          message: `Successfully retrieved ${result.length} record/s.`
-        })
-      })
-      .catch(error => {
-        res.json({
-          result: null,
-          message: 'Failed to retrieve record/s.'
-        })
-      })
-  })
-  
-  app.get('/api/employee/:id', (req, res) => {
-    // TODO - view a specific employee
-    const id = req.params.id
-    
-    
-    Employee.findByPk(id)
-      .then(result => {
-        if (result) {
-          res.json({
-            result: result,
-            message: "Successfully retrieved a record."
-          })
+const routePrefix = '/management/'
+const { Account } = require('./db')
+
+// auth middleware
+app.use((req, res, next) => {
+  if(!req.path.includes('management')) {
+    return next()
+  }
+  const b64auth = (req.headers.authorization || '').split(' ')[1] || ''
+  const [email, password] = Buffer.from(b64auth, 'base64').toString().split(':')
+
+  Account.findByPk(email)
+    .then(auth => {
+      if (auth) {
+        if (email && password && email === auth.email && password === auth.password) {
+          req.headers.role = auth.clearanceLevel
+          return next()
         } else {
-          throw "error"
+          res.set('WWW-Authenticate', 'Basic realm="401"') 
+          res.status(403).json(
+            {
+              message: 'Permission denied.'
+            }
+          ) 
         }
-      })
-      .catch(error => {
-        res.json({
-          result: null,
-          message: `Failed to retrieve record with an ID of ${id}.`
-        })
-      })
-  })
-  
-  app.post('/api/employee', (req, res) => {
-    // TODO - add an employee
-    const data = req.body
-    
-    Employee.create(data)
-      .then(result => {
-        res.json({
-          result: result,
-          message: 'Successfully created a record.'
-        })
-      })
-      .catch(error => {
-        res.json({
-          result: null,
-          message: `Failed create record.`
-        })
-      })
-  })
-  
-  app.put('/api/employee/:id', (req, res) => {
-    // TODO - update an employee
-    const id = req.params.id
-    const data = req.body
-    Employee.update(data, {
-      where: {
-        id: id
+      } else {
+        res.set('WWW-Authenticate', 'Basic realm="401"') 
+        res.status(403).json(
+          {
+            message: 'Permission denied.'
+          }
+        ) 
       }
     })
-      .then(result => {
-        res.json({
-          result: result,
-          message: 'Successfully updated record.'
-        })
-      })
-      .catch(error => {
-        res.json({
-          result: null,
-          message: `Failed update record with an ID of ${id}.`
-        })
-      })
-  })
-  
-  app.delete('/api/employee/:id', (req, res) => {
-    // TODO - delete an employee
-    const id = req.params.id
-    Employee.destroy({
-      where: {
-        id: id
-      }
+    .catch(error => {
+      res.set('WWW-Authenticate', 'Basic realm="401"') 
+      res.status(403).json(
+        {
+          message: 'Permission denied.'
+        }
+      ) 
     })
-      .then(result => {
-        res.json({
-          result: result,
-          message: 'Successfully deleted record.'
-        })
-      })
-      .catch(error => {
-        res.json({
-          result: null,
-          message: `Failed to delete record with an ID of ${id}.`
-        })
-      })
-  })
-  //EMPLOYEE END
 
-
-
-//ADMIN START
-  app.get('/api/admin', (req, res) => {
-    // TODO - view all employees
-    Admin.findAll(({ include: [AdminClearance] })
-      .then(result => {
-        res.json({
-          result: result,
-          message: `Successfully retrieved ${result.length} record/s.`
-        })
-      })
-      .catch(error => {
-        res.json({
-          result: null,
-          message: 'Failed to retrieve record/s.'
-        })
-      })
-  )
 
 })
-  
-  app.get('/api/admin/:id', (req, res) => {
-    // TODO - view a specific employee
-    const id = req.params.id
-    Admin.findByPk(id)
-      .then(result => {
-        if (result) {
-          res.json({
-            result: result,
-            message: "Successfully retrieved a record."
-          })
-        } else {
-          throw "error"
-        }
-      })
-      .catch(error => {
-        res.json({
-          result: null,
-          message: `Failed to retrieve record with an ID of ${id}.`
-        })
-      })
-  })
-  
-  app.post('/api/admin', (req, res) => {
-    // TODO - add an employee
-    const data = req.body
-    Admin.create(data)
-      .then(result => {
-        res.json({
-          result: result,
-          message: 'Successfully created a record.'
-        })
-      })
-      .catch(error => {
-        res.json({
-          result: null,
-          message: `Failed create record.`
-        })
-      })
-  })
-  
-  app.put('/api/admin/:id', (req, res) => {
-    // TODO - update an employee
-    const id = req.params.id
-    const data = req.body
-    Admin.update(data, {
-      where: {
-        id: id
-      }
-    })
-      .then(result => {
-        res.json({
-          result: result,
-          message: 'Successfully updated record.'
-        })
-      })
-      .catch(error => {
-        res.json({
-          result: null,
-          message: `Failed update record with an ID of ${id}.`
-        })
-      })
-  })
-  
-  app.delete('/api/admin/:id', (req, res) => {
-    // TODO - delete an employee
-    const id = req.params.id
-    Admin.destroy({
-      where: {
-        id: id
-      }
-    })
-      .then(result => {
-        res.json({
-          result: result,
-          message: 'Successfully deleted record.'
-        })
-      })
-      .catch(error => {
-        res.json({
-          result: null,
-          message: `Failed delete record with an ID of ${id}.`
-        })
-      })
-  })
-//ADMIN END
 
+app.use(`${routePrefix}account`, account)
+app.use(`${routePrefix}employee`, employee)
+app.use(`${routePrefix}auth`, auth)
+
+app.get('/', (req, res) =>{
+  res.render('login.html')
+})
+
+app.get('/employees', (req, res) =>{
+  res.render('list-employee.html')
+})
+
+app.get('/employees/:id', (req, res) =>{
+  res.render('view-employee.html')
+})
+
+app.get('/employees/add', (req, res) =>{
+  res.render('add-employee.html')
+})
+
+app.get('/employees/edit/:id', (req, res) =>{
+  res.render('edit-employee.html')
+})
+
+app.get('/accounts', (req, res) =>{
+  res.render('list-employee.html')
+})
+
+app.get('/accounts/:id', (req, res) =>{
+  res.render('view-employee.html')
+})
+
+app.get('/accounts/add', (req, res) =>{
+  res.render('add-employee.html')
+})
+
+app.get('/accounts/edit/:id', (req, res) =>{
+  res.render('edit-employee.html')
+})
+
+app.listen(6000, async () => {
+  console.log("Application started...")
+})

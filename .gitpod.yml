@@ -5,6 +5,6 @@ tasks:
   - init: npm install
 
 ports:
-  - port: 4000
+  - port: 6000
     visibility: public
-    onOpen: open-browser
+    onOpen: ignore

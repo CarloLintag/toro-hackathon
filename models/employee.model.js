@@ -3,26 +3,35 @@ module.exports = (sequelize, type) => {
       id: {
         type: type.BIGINT(20),
         primaryKey: true,
-        autoIncrement: true,
-        defaultvalue: 10000,
-      },
-      lastName: {
-        type: type.STRING,
-        allowNull: false,
       },
       firstName: {
         type: type.STRING,
         allowNull: false,
       },
-      middleName: {
+      lastName: {
         type: type.STRING,
+        allowNull: false,
       },
-      fullName: {
-        type: type.VIRTUAL,
-        get() {
-          return `${this.lastName}, ${this.firstName}  ${this.middleName}`
-        }
-      }
-    })
+      position: {
+        type: type.STRING,
+        allowNull: false,
+      },
+      sickLeaveCredits: {
+        type: type.INTEGER,
+        allowNull: false
+      },
+      vacationLeaveCredits: {
+        type: type.INTEGER,
+        allowNull: false
+      },
+      hourlyRate: {
+        type: type.INTEGER,
+        allowNull: false
+      },
+    },
+    {
+      timestamps: false
+    }
+    )
   }
   

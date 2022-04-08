@@ -1,0 +1,138 @@
+<!doctype html>
+   <html lang="en">
+   <head>
+       <meta charset="utf-8">
+       <meta name="viewport" content="width=device-width, initial-scale=1">
+       <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css">
+       <link rel="stylesheet" type="text/css" href="/workspace/toro-hackathon/css/employees.css">
+       <title>Log in</title>
+      
+   </head>
+   <body>
+    <div class="wrapper">
+      <div class="header">
+          <h4> EMS</h4>
+      </div>
+  </div>
+
+    <div class="d-flex align-items-center justify-content-center">
+        <div class="container-lg">
+            <div class="text-right">
+              <div class="row">
+                <a href="#" id="accountsNav">Accounts List</a>
+              </div>
+              <div class="row">
+                <div class="col text-left">
+                  <h1>View All Employees</h1>
+                </div>
+                <div class=" col text-right">
+                  <a class="btn btn-primary" href="#" role="button" id="addNewEmployee" style="width:14vw">Add New Employee</a>
+                </div>
+              </div>
+               
+            </div>
+          <div class="table-container">
+
+         
+            <table class="table table-hover ">
+                <thead>
+                    <tr>
+                      <th scope="col">Employee ID</th>
+                      <th scope="col">Last Name</th>
+                      <th scope="col">First Name</th>
+                      <th scope="col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="employee-tbody">
+
+                  <!--- <tr>
+                      <th scope="row">1</th>
+                      <td>Mark</td>
+                      <td>Otto</td>
+                      <td>@mdo</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">2</th>
+                      <td>Jacob</td>
+                      <td>Thornton</td>
+                      <td>@fat</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">3</th>
+                      <td colspan="2">Larry the Bird</td>
+                      <td>@twitter</td>
+                    </tr>
+                  </tbody> --> 
+                
+              </table>
+        </div>
+      </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        const api = axios.create({
+        baseURL: 'https://6000-carlolintag-torohackatho-35cvx7tow3f.ws-us38.gitpod.io/management',
+        timeout: 10000,
+        auth: {
+          username: localStorage.getItem('username'),
+          password: localStorage.getItem('password')
+        }
+      });
+
+
+      //VIEW ALL
+      api.get('/employee')
+        .then(response => {
+          const data = response.data
+          console.log(data)
+          let htmlContent = '';
+          data.employee.forEach(element => {
+            htmlContent +=
+            `
+              <tr>
+                <td>${element.id}</td>
+                <td>${element.lastName}</td>
+                <td>${element.firstName}</td>
+                <td>
+                  <a href='/employees/${element.id}'>View</a>
+                  <a href='/employees/edit/${element.id}'>Edit</a>
+                  <a href='#' class='delete-employee' id='${element.id}'>Delete</a>
+                </td>
+              </tr>
+            `
+            
+          });
+          document.getElementById('employee-tbody').innerHTML = htmlContent
+        })
+        .catch(error => {
+          console.log(error)
+          alert('Failed to retrieve all employees')
+        });
+
+        document.getElementById('accountsNav').addEventListener('click', function(){
+          location.href = '/accounts'
+        })
+
+        document.getElementById('addNewEmployee').addEventListener('click', function(){
+          location.href = '/employees/add'
+        })
+      
+        //DELETE
+        Array.from(document.getElementsByClassName('delete-employee')).forEach(function (element) {
+            element.addEventListener('click', function() {
+              api.delete(`/employee/${element.id}`)
+                .then(response => {
+                  location.href = '/employees'
+                })
+            })
+          })
+        .catch(error => {
+          alert('Failed to delete selected employee')
+        });
+
+    </script>
+
+    </body>
+   
+   </html>

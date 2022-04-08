@@ -1,0 +1,103 @@
+<!doctype html>
+   <html lang="en">
+   <head>
+       <meta charset="utf-8">
+       <meta name="viewport" content="width=device-width, initial-scale=1">
+       <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css">
+       <link rel="stylesheet" type="text/css" href="/workspace/toro-hackathon/css/employees.css">
+       <title>Log in</title>
+      
+   </head>
+   <body>
+    <div class="d-flex align-items-center justify-content-center">
+        <div class="container-lg">
+            <h1>View Employee Details</h1>
+            <div class="row">
+                <div class="col">
+                    <label for="employeeID" class="form-label">Employee ID</label>
+                    <input type="text" class="form-control" id="employeeID" readonly>
+                </div>
+                <div class="col">
+                    <label for="registrationDate" class="form-label">Registration Date</label>
+                    <input type="text" class="form-control" id="registrationDate" readonly>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="lastName" class="form-label">Last Name</label>
+                    <input type="text" class="form-control" id="lastName" readonly>
+                </div>
+                <div class="col">
+                  <label for="firstName" class="form-label">First Name</label>
+                  <input type="text" class="form-control" id="firstName" readonly>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col">
+                    <label for="position" class="form-label">Position</label>
+                    <input type="text" class="form-control" id="position " readonly>
+                  </div>
+                <div class="col">
+                    <label for="hourlyRate" class="form-label">Hourly Rate</label>
+                    <input type="text" class="form-control" id="hourlyRate" readonly>
+                  </div>
+                <div class="col">
+                    <label for="sickLeaveCredit" class="form-label">Sick Leave Credit</label>
+                    <input type="text" class="form-control" id="sickLeaveCredit" readonly>
+                </div>
+                <div class="col">
+                  <label for="vacationLeaveCredit" class="form-label">Vacation Leave Credit</label>
+                  <input type="text" class="form-control" id="vacationLeaveCredit" readonly>
+                </div>
+               
+            </div>
+            
+            <div class="row text-right " style="margin-top:1vw">
+                <div class="col-8">
+                    
+                </div>
+                <div class="col text-right">
+                    <button id="edit" type="button" class="btn btn-primary">Edit</button>
+                </div>
+                <div class="col text-right">
+                    <button id="back" type="button" class="btn btn-secondary">Back</button>
+                </div>
+            </div>
+        </div>
+       
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+      const api = axios.create({
+        baseURL: 'https://6000-carlolintag-torohackatho-35cvx7tow3f.ws-us38.gitpod.io/management',
+        timeout: 10000,
+      });
+
+
+        document.getElementById("edit").addEventListener("click", function(){
+            location.href('/accounts/edit-account')
+        });
+
+        document.getElementById("back").addEventListener("click", function(){
+            location.href('/accounts')
+        });
+
+      const id = '{{id}}'
+      api.get(`/account/${id}`)
+        .then(response => {
+          let data = response.data.result
+          document.getElementById('lastName').innerHTML = data.lastName
+          document.getElementById('firstName').innerHTML = data.firstName
+          document.getElementById('clearanceLevel').innerHTML = data.clearanceLevel
+          
+        })
+        .catch(error => {
+         alert('Failed to view selected account');
+        })
+    </script>
+
+
+    </body>
+   
+   </html>
